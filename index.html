@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loading Screen</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Creepster&display=swap">
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: rgb(54, 134, 172);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        #myCanvas {
+            position: absolute;
+        }
+
+        #discordContainer {
+            position: absolute;
+            text-align: center;
+            bottom: 30%;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        #greetingText {
+            font-family: 'Arial', cursive;
+            font-size: 36px;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        #discordLink {
+            font-family: 'Verdana';
+            font-size: 20px;
+            color: white;
+            text-decoration: none;
+            margin-right: 10px;
+        }
+
+        #discordLink::after {
+            content: attr(href);
+            display: inline-block;
+            font-weight: bold;
+            color: rgb(255, 136, 0);
+        }
+
+        #discordIcon {
+            width: 30px;
+            height: 30px;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="myCanvas"></canvas>
+    <div id="discordContainer">
+        <div id="greetingText">Begotten Dueling Server</div>
+        <a id="discordLink" href="/7x6YnGDX5v" target="_blank">https://discord.gg</a>
+    </div>
+
+    <script>
+        var canvas = document.getElementById("myCanvas");
+        var context = canvas.getContext("2d");
+        let timeouts = [];
+        var globalRainbowOffset = 0;
+
+        function setup() {
+            clearTimeouts();
+
+            var width = window.innerWidth;
+            var height = window.innerHeight;
+
+            canvas.width = width;
+            canvas.height = height;
+
+            var texts = [
+                createText(100, 100, 36, 5, 5, "Clap your hands"),
+                createText(200, 200, 36, 7, -7, "If you're happy"),
+                createText(300, 300, 36, -8, 6, "And you know it!"),
+                createText(400, 400, 36, -6, -6, "Clap your hands"),
+                createText(500, 500, 36, 4, -4, "Clap your hands"),
+            ];
+
+            function createText(x, y, fontSize, xSpeed, ySpeed, content) {
+                return {
+                    x: x,
+                    y: y,
+                    fontSize: fontSize,
+                    xSpeed: xSpeed,
+                    ySpeed: ySpeed,
+                    content: content,
+                    gradientColorStop: 0,
+                    draw: function (ctx) {
+                        var gradient = ctx.createLinearGradient(
+                            this.x + globalRainbowOffset,
+                            this.y,
+                            this.x + this.fontSize * this.content.length + globalRainbowOffset,
+                            this.y
+                        );
+
+                        gradient.addColorStop(this.gradientColorStop, 'hsl(30, 100%, 60%)'); // Orange
+                        gradient.addColorStop((this.gradientColorStop + 0.2) % 1, 'hsl(40, 100%, 60%)'); // Light Orange
+                        gradient.addColorStop((this.gradientColorStop + 0.4) % 1, 'hsl(50, 100%, 60%)'); // Peach
+                        gradient.addColorStop((this.gradientColorStop + 0.6) % 1, 'hsl(60, 100%, 60%)'); // Light Peach
+                        gradient.addColorStop((this.gradientColorStop + 0.8) % 1, 'hsl(70, 100%, 60%)'); // Light Brown
+                        gradient.addColorStop((this.gradientColorStop + 1) % 1, 'hsl(80, 100%, 60%)'); // Brown
+
+                        ctx.font = this.fontSize + "px 'Creepster', cursive";
+                        ctx.fillStyle = gradient;
+                        ctx.fillText(this.content, this.x, this.y);
+                    },
+                    move: function () {
+                        this.x += this.xSpeed;
+                        this.y += this.ySpeed;
+
+                        // Check boundaries
+                        if (this.x + this.fontSize * this.content.length >= width || this.x <= 0) {
+                            this.xSpeed = -this.xSpeed;
+                        }
+
+                        if (this.y + this.fontSize >= height || this.y <= 0) {
+                            this.ySpeed = -this.ySpeed;
+                        }
+                    }
+                };
+            }
+
+            function clearTimeouts() {
+                timeouts.forEach(clearTimeout);
+                timeouts = [];
+            }
+
+            function animate() {
+                context.clearRect(0, 0, width, height);
+                context.strokeRect(0, 0, width, height);
+
+                texts.forEach(function (text) {
+                    text.move();
+                    text.draw(context);
+                });
+
+                // Increment the global rainbow offset for the continuous effect
+                globalRainbowOffset += 0.00;
+
+                // Increment the gradientColorStop for dynamic color change
+                texts.forEach(function (text) {
+                    text.gradientColorStop = (text.gradientColorStop + 0.01) % 1;
+                });
+
+                timeouts.push(setTimeout(animate, 10));
+            }
+
+            animate();
+        }
+
+        window.onresize = setup;
+        setup();
+    </script>
+</body>
+
+</html>
